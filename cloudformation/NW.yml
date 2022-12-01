@@ -30,8 +30,8 @@ Resources:
  #=================================
   PUBLIC: 
     Type: "AWS::EC2::Subnet"
-    Properties: !Sub ${AWS::Region}a
-      AvailabilityZone: 
+    Properties: 
+      AvailabilityZone: !Sub ${AWS::Region}a
       CidrBlock: 10.0.10.0/24
       VpcId: !Ref RAISE 
       Tags: 
