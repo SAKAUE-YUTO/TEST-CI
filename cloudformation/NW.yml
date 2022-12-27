@@ -20,7 +20,7 @@ Resources:
   RAISE:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.0.0.0/16
+      CidrBlock: 10.10.0.0/16
       Tags:
       - Key: Name
         Value: RAISE
@@ -31,8 +31,8 @@ Resources:
   PUBLIC: 
     Type: "AWS::EC2::Subnet"
     Properties: 
-      AvailabilityZone: !Sub ${AWS::Region}a
-      CidrBlock: 10.0.10.0/24
+      AvailabilityZone: "ap-northeast-1a"
+      CidrBlock: 10.10.10.0/24
       VpcId: !Ref RAISE 
       Tags: 
         - Key: Name
@@ -41,8 +41,8 @@ Resources:
   PUBLIC2: 
     Type: "AWS::EC2::Subnet"
     Properties: 
-      AvailabilityZone: !Sub ${AWS::Region}c
-      CidrBlock: 10.0.11.0/24
+      AvailabilityZone: "ap-northeast-1c"
+      CidrBlock: 10.10.11.0/24
       VpcId: !Ref RAISE
       Tags: 
         - Key: Name
@@ -51,8 +51,8 @@ Resources:
   PRIVATE: 
     Type: "AWS::EC2::Subnet"
     Properties: 
-      AvailabilityZone: !Sub ${AWS::Region}a
-      CidrBlock: 10.0.20.0/24
+      AvailabilityZone: "ap-northeast-1a"
+      CidrBlock: 10.10.20.0/24
       VpcId: !Ref RAISE
       Tags: 
         - Key: Name
@@ -61,8 +61,8 @@ Resources:
   PRIVATE2: 
     Type: "AWS::EC2::Subnet"
     Properties: 
-      AvailabilityZone: !Sub ${AWS::Region}c
-      CidrBlock: 10.0.21.0/24
+      AvailabilityZone: "ap-northeast-1c"
+      CidrBlock: 10.10.21.0/24
       VpcId: !Ref RAISE
       Tags: 
         - Key: Name
@@ -136,10 +136,10 @@ Resources:
             - !Ref SECURITYGW
       Tags:
           - Key: Name
-            Value: RAISE-EC2
+            Value: RAISE-EC
 #=================================
 # セキュリティグループ作成
-#=================================S
+#=================================
 
   SECURITYGW:
     Type: AWS::EC2::SecurityGroup
@@ -159,75 +159,10 @@ Resources:
           ToPort: 22
           CidrIp: !Ref MyIP
 #=================================
-# ターゲットグループ作成
+# EIP関連付け
 #=================================
-
-  RAISETG:
-    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
-    Properties: 
-      VpcId: !Ref RAISE
-      Protocol: HTTP
-      Port: 80
-      HealthCheckProtocol: HTTP
-      HealthCheckPath: "/"
-      HealthCheckPort: "traffic-port"
-      HealthyThresholdCount: 2
-      UnhealthyThresholdCount: 2
-      HealthCheckTimeoutSeconds: 5
-      HealthCheckIntervalSeconds: 10
-      Tags: 
-        - Key: Name
-          Value: RATG
-      Matcher: 
-        HttpCode: 200
-      TargetGroupAttributes: 
-        - Key: "deregistration_delay.timeout_seconds"
-          Value: 300
-        - Key: "stickiness.enabled"
-          Value: false
-        - Key: "stickiness.type"
-          Value: lb_cookie
-        - Key: "stickiness.lb_cookie.duration_seconds"
-          Value: 86400
-      Targets: 
-        - Id: !Ref EC2
-          Port: 80
-
-
-# ------------------------------------------------------------#
-# ALB
-# ------------------------------------------------------------#      
-
-  InternetALB: 
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties: 
-      Scheme: internet-facing
-      LoadBalancerAttributes: 
-        - Key: deletion_protection.enabled
-          Value: false
-        - Key: idle_timeout.timeout_seconds
-          Value: 4000
-      
-      SecurityGroups:
-        - !Ref SECURITYGW
-      Subnets: 
-        - !Ref PUBLIC
-        - !Ref PUBLIC2
-      Tags: 
-        - Key: Name
-          Value: RAISEALB
-  ALBListenerHTTP: 
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties: 
-      Port: 80
-      Protocol: HTTP
-      DefaultActions: 
-        - TargetGroupArn: !Ref RAISETG
-          Type: forward
-      LoadBalancerArn: !Ref InternetALB
-
-
-
-# ------------------------------------------------------------#
-# Output Parameters
-# ------------------------------------------------------------#                
+  IPAssoc:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref EC2
+      EIP: 54.92.8.152
