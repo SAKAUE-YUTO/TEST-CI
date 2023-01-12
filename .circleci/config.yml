@@ -2,23 +2,30 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+orbs:
+  aws-cli: circleci/aws-cli@3.1.4
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
-jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+jobs:  
+  configure-role-arn:
+    executor: aws-cli/default
     steps:
       - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+      - aws-cli/setup:
+          profile-name: default
+      - aws-cli/role-arn-setup:
+          profile-name: new-profile
+          role-arn: 'arn:aws:iam::123456789012:role/example-role'
+          source-profile: default
+      - run: >-
+          aws sts assume-role --role-arn
+          "arn:aws:iam::123456789012:role/example-role" --role-session-name
+          AWSCLI-Session
+workflows:
+  aws-cli:
+    jobs:
 
-# Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   say-hello-workflow:
