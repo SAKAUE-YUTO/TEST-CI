@@ -17,7 +17,7 @@ jobs:
          aws-region: AWS_DEFAULT_REGION
          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
       - run
-         name: deploy CF
+         name: deploy-CF
          command: 
           set -x
           aws cloudformation deploy --stackname test --template-fale cloudformation/NW.yml
