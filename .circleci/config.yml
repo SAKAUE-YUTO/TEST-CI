@@ -8,26 +8,21 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:  
-  configure-role-arn:
+  executor-CF:
     executor: aws-cli/default
     steps:
       - checkout
       - aws-cli/setup:
-          profile-name: default
-      - aws-cli/role-arn-setup:
-          profile-name: new-profile
-          role-arn: 'arn:aws:iam::123456789012:role/example-role'
-          source-profile: default
-      - run: >-
-          aws sts assume-role --role-arn
-          "arn:aws:iam::123456789012:role/example-role" --role-session-name
-          AWSCLI-Session
+         aws-access-key-id: AWS_ACCESS_KEY_ID
+         aws-region: AWS_DEFAULT_REGION
+         aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+      - run
+         name: deploy CF
+         command: 
+          set -x
+          aws cloudformation deploy --stackname test --template-fale cloudformation/NW.yml
+          
 workflows:
-  aws-cli:
-    jobs:
+  task15:
+    jobs: executor-CF
 
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
-workflows:
-  say-hello-workflow:
-    jobs:
-      - say-hello
