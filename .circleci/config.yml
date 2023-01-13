@@ -20,7 +20,7 @@ jobs:
          name: deploy-CF
          command: 
           set -x
-          aws cloudformation deploy --stackname test --template-fale cloudformation/NW.yml
+          aws cloudformation deploy --stackname test --template-file cloudformation/NW.yml
           
 workflows:
   TEST-CI:
