@@ -23,6 +23,7 @@ jobs:
           aws cloudformation deploy --stackname test --template-fale cloudformation/NW.yml
           
 workflows:
-  task15:
-    jobs: executor-CF
+  TEST-CI:
+    jobs: 
+     - executor-CF
 
