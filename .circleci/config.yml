@@ -18,7 +18,7 @@ jobs:
          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
       - run:
         name: deploy cloudformation
-         command: 
+        command: 
           set -x
 # aws cloudformation deploy --template-file cloudformation/NW.yml --stackname circleciCF
           aws cloudformation deploy --template-file cloudformation/NW.yml --stack-name RAISE-TASK-CF
