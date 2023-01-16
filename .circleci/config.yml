@@ -20,7 +20,7 @@ jobs:
           aws cloudformation deploy --stack-name task13 --template-file ~/environment/TEST/TEST-CI/cloudformation/NW.yaml
           
 workflows:
-  TEST-CI:
+  RAISE:
     jobs: 
      - executor-CF
 
