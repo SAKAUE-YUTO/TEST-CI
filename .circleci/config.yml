@@ -18,7 +18,7 @@ jobs:
          command: 
           set -x
 
-          aws cloudformation deploy --stack-name task13 --template-file aaaaaaaaa
+          aws cloudformation deploy --stack-name task13 --template-file cloudformation/NW.yaml
           
 workflows:
   RAISE:
