@@ -17,6 +17,7 @@ jobs:
          name: deploy cloudformation
          command: 
           set -x
+
           aws cloudformation deploy --stack-name task13 --template-file aaaaaaaaa
           
 workflows:
