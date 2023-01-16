@@ -1,0 +1,164 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Provision EC2
+
+ #=================================
+ # VPCの作成
+ #=================================
+Resources:
+  RAISE:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.10.0.0/16
+      Tags:
+      - Key: Name
+        Value: RAISE
+
+ #=================================
+ # サブネットの作成
+ #=================================
+  PUBLIC: 
+    Type: "AWS::EC2::Subnet"
+    Properties: 
+      AvailabilityZone: "ap-northeast-1a"
+      CidrBlock: 10.10.10.0/24
+      VpcId: !Ref RAISE 
+      Tags: 
+        - Key: Name
+          Value: PUBLIC
+
+  PUBLIC2: 
+    Type: "AWS::EC2::Subnet"
+    Properties: 
+      AvailabilityZone: "ap-northeast-1c"
+      CidrBlock: 10.10.11.0/24
+      VpcId: !Ref RAISE
+      Tags: 
+        - Key: Name
+          Value: PUBLIC2
+
+  PRIVATE: 
+    Type: "AWS::EC2::Subnet"
+    Properties: 
+      AvailabilityZone: "ap-northeast-1a"
+      CidrBlock: 10.10.20.0/24
+      VpcId: !Ref RAISE
+      Tags: 
+        - Key: Name
+          Value: PRIVATE
+
+  PRIVATE2: 
+    Type: "AWS::EC2::Subnet"
+    Properties: 
+      AvailabilityZone: "ap-northeast-1c"
+      CidrBlock: 10.10.21.0/24
+      VpcId: !Ref RAISE
+      Tags: 
+        - Key: Name
+          Value: PRIVATE2
+
+#=================================
+# インターネットゲートウェイ作成
+#=================================
+  IGW:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: NETGW-RAISE
+
+#=================================
+# IGWをVPCにアタッチ
+#=================================
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref RAISE
+      InternetGatewayId: !Ref IGW
+
+
+#=================================
+# IGW用ルートテーブル作成
+#=================================
+  PubSubRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref RAISE
+      Tags:
+        - Key: Name
+          Value: RUTE-TABLE-RAISE_PUBLIC
+
+#=================================
+# IGW用ルートテーブルに0.0.0.0/0をアタッチ
+#=================================
+  PubSubToInternet:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PubSubRT
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref IGW
+
+#=================================
+# IGW用ルートテーブルをサブネットにアタッチ
+#=================================
+  AssoPubSubRT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PUBLIC
+      RouteTableId: !Ref PubSubRT
+
+  Key:
+    Type: AWS::EC2::KeyPair
+    Properties:
+      KeyName: RAISE-KEY
+      KeyType: rsa
+      Tags:
+        - Key: Name
+          Value: Key
+#=================================
+# EC2作成
+#=================================
+
+  EC2: 
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: ami-00d101850e971728d
+      KeyName: !Ref Key
+      InstanceType: t2.micro
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          SubnetId: !Ref PUBLIC
+          GroupSet:
+            - !Ref SECURITYGW
+      Tags:
+          - Key: Name
+            Value: RAISE-EC
+#=================================
+# セキュリティグループ作成
+#=================================
+
+  SECURITYGW:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: SECURITYGW
+      GroupDescription: Allow SSH and HTTP to client host
+      VpcId: !Ref RAISE
+      SecurityGroupIngress:
+        # http
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        # ssh
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+#=================================
+# EIP関連付け
+#=================================
+  IPAssoc:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref EC2
+      EIP: 54.92.8.152
