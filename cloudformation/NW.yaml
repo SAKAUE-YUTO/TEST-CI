@@ -1,9 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Provision EC2
 
- #=================================
- # VPCの作成
- #=================================
+
 Resources:
   RAISE:
     Type: AWS::EC2::VPC
@@ -13,9 +11,7 @@ Resources:
       - Key: Name
         Value: RAISE
 
- #=================================
- # サブネットの作成
- #=================================
+
   PUBLIC: 
     Type: "AWS::EC2::Subnet"
     Properties: 
@@ -56,9 +52,7 @@ Resources:
         - Key: Name
           Value: PRIVATE2
 
-#=================================
-# インターネットゲートウェイ作成
-#=================================
+
   IGW:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -66,9 +60,7 @@ Resources:
         - Key: Name
           Value: NETGW-RAISE
 
-#=================================
-# IGWをVPCにアタッチ
-#=================================
+
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -76,9 +68,7 @@ Resources:
       InternetGatewayId: !Ref IGW
 
 
-#=================================
-# IGW用ルートテーブル作成
-#=================================
+
   PubSubRT:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -87,9 +77,7 @@ Resources:
         - Key: Name
           Value: RUTE-TABLE-RAISE_PUBLIC
 
-#=================================
-# IGW用ルートテーブルに0.0.0.0/0をアタッチ
-#=================================
+
   PubSubToInternet:
     Type: AWS::EC2::Route
     Properties:
@@ -97,9 +85,7 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref IGW
 
-#=================================
-# IGW用ルートテーブルをサブネットにアタッチ
-#=================================
+
   AssoPubSubRT:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -114,9 +100,6 @@ Resources:
       Tags:
         - Key: Name
           Value: Key
-#=================================
-# EC2作成
-#=================================
 
   EC2: 
     Type: AWS::EC2::Instance
@@ -133,9 +116,6 @@ Resources:
       Tags:
           - Key: Name
             Value: RAISE-EC
-#=================================
-# セキュリティグループ作成
-#=================================
 
   SECURITYGW:
     Type: AWS::EC2::SecurityGroup
@@ -154,9 +134,7 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
-#=================================
-# EIP関連付け
-#=================================
+
   IPAssoc:
     Type: AWS::EC2::EIPAssociation
     Properties:
