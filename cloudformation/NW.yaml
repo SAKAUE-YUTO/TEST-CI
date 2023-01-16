@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Provision EC2
-
-
+ 
 Resources:
   RAISE:
     Type: AWS::EC2::VPC
@@ -10,7 +9,6 @@ Resources:
       Tags:
       - Key: Name
         Value: RAISE
-
 
   PUBLIC: 
     Type: "AWS::EC2::Subnet"
@@ -68,7 +66,6 @@ Resources:
       InternetGatewayId: !Ref IGW
 
 
-
   PubSubRT:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -84,7 +81,6 @@ Resources:
       RouteTableId: !Ref PubSubRT
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref IGW
-
 
   AssoPubSubRT:
     Type: AWS::EC2::SubnetRouteTableAssociation
