@@ -20,7 +20,7 @@ jobs:
          name: deploy cloudformation
          command: 
           set -x
-          aws cloudformation deploy --stack-name task13 --template-file /cloudformation/NW.yaml
+          aws cloudformation deploy --stack-name task13 --template-file ~/environment/TEST/TEST-CI/cloudformation/NW.yaml
           
 workflows:
   TEST-CI:
