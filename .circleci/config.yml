@@ -48,7 +48,7 @@ workflows:
     jobs: 
      - cfn-lint
      - executor-CF
-     - executor-ansible:
+     - executor-Ansible:
          requires:
            - "executor-CF"
 
