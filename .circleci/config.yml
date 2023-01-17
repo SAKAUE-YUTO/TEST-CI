@@ -44,7 +44,7 @@ jobs:
           playbook: ansible/playbook.yml
           playbook-options: "-u ec2-user -i inventory --private-key ~/environment/TEST/.ssh/RAISE-KEY.pem"
 workflows:
-  RAISE:
+  RAISE-13:
     jobs: 
      - cfn-lint
      - executor-CF
