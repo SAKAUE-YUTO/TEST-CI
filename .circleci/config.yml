@@ -3,8 +3,19 @@ version: 2.1
 
 orbs:
   aws-cli: circleci/aws-cli@3.1.4
+  ansible-playbook: orbss/ansible-playbook@0.0.5
+  python: circleci/python@2.0.3
 
-jobs:  
+jobs:
+  cfn-lint:
+    executor: python/default
+    steps:
+      - checkout
+      - run: pip install cfn-lint
+      - run:
+          name: run cfn-lint
+          command: |
+            cfn-lint -i W3002 -t cloudformation/*.yaml
   executor-CF:
     executor: aws-cli/default
     steps:
@@ -19,9 +30,25 @@ jobs:
           set -x
 
           aws cloudformation deploy --stack-name task13 --template-file cloudformation/NW.yaml
-          
+
+  executor-Ansible:
+    executor: ansible-playbook/default
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "11:a1:b8:40:e7:86:f3:6e:cb:97:15:89:12:b2:1b:53"
+      - ansible-playbook/install:
+          version: 2.9.27
+      - ansible-playbook/playbook:
+          playbook: ansible/playbook.yml
+          playbook-options: "-u ec2-user -i inventory --private-key ~/environment/TEST/.ssh/RAISE-KEY.pem"
 workflows:
   RAISE:
     jobs: 
+     - cfn-lint
      - executor-CF
+     - executor-ansible:
+         requires:
+           - "executor-CF"
 
