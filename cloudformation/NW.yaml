@@ -96,20 +96,11 @@ Resources:
       SubnetId: !Ref PUBLIC
       RouteTableId: !Ref PubSubRT
 
-  Key:
-    Type: AWS::EC2::KeyPair
-    Properties:
-      KeyName: RAISE-KYE
-      KeyType: rsa
-      Tags:
-        - Key: Name
-          Value: Key
-
   EC2: 
     Type: AWS::EC2::Instance
     Properties: 
       ImageId: ami-00d101850e971728d
-      KeyName: !Ref Key
+      KeyName: "RAISE-KEY"
       InstanceType: t2.micro
       NetworkInterfaces: 
         - AssociatePublicIpAddress: "true"
