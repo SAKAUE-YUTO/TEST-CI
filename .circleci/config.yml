@@ -37,7 +37,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "11:a1:b8:40:e7:86:f3:6e:cb:97:15:89:12:b2:1b:53"
+            - "d9:97:25:47:37:f2:0f:67:36:0d:e3:fb:b5:71:17:42"
       - ansible-playbook/install:
           version: 2.9.27
       - ansible-playbook/playbook:
