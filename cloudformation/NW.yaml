@@ -99,7 +99,7 @@ Resources:
   Key:
     Type: AWS::EC2::KeyPair
     Properties:
-      KeyName: RAISE-KEY
+      KeyName: RAISE-KYE
       KeyType: rsa
       Tags:
         - Key: Name
