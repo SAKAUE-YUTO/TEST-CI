@@ -42,7 +42,7 @@ jobs:
           version: 2.9.27
       - ansible-playbook/playbook:
           playbook: ansible/playbook.yml
-          playbook-options: "-u ec2-user -i /ansible/inventory --private-key ~/environment/TEST/TEST-CI/.ssh/RAISE-KEY.pem"
+          playbook-options: "-u ec2-user -i ~/environment/TEST/TEST-CI/ansible/inventory --private-key ~/environment/TEST/TEST-CI/.ssh/RAISE-KEY.pem"
 workflows:
   RAISE-13:
     jobs: 
