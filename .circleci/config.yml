@@ -40,6 +40,7 @@ jobs:
             - "d9:97:25:47:37:f2:0f:67:36:0d:e3:fb:b5:71:17:42"
       - ansible-playbook/install:
           version: 2.9.27
+      - run: ssh -o StrictHostKeyChecking=no ec2-user@54.92.8.152
       - ansible-playbook/playbook:
           playbook: ansible/playbook.yml
           playbook-options: "-u ec2-user -i ansible/inventory --private-key .ssh/RAISE-KEY.pem"
