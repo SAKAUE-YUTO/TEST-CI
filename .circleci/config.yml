@@ -48,7 +48,9 @@ workflows:
   RAISE-13:
     jobs: 
      - cfn-lint
-     - executor-CF
+     -  - executor-CF:
+         requires:
+           - "cfn-lint"
      - executor-Ansible:
          requires:
            - "executor-CF"
