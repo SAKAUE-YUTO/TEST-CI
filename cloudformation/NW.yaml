@@ -1,21 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Provision EC2
  
- #=================================
- #初期設定　KEY及びIP
- #=================================
-Parameters: 
-  KeyName:
-    Description: The EC2 Key Pair to allow SSH access to the instance
-    Type: "AWS::EC2::KeyPair::KeyName"
-
-  MyIP:
-    Description: IP address allowed to access EC2
-    Type: String
-
- #=================================
- # VPCの作成
- #=================================
 Resources:
   RAISE:
     Type: AWS::EC2::VPC
@@ -25,13 +10,12 @@ Resources:
       - Key: Name
         Value: RAISE
 
- #=================================
- # サブネットの作成
- #=================================
   PUBLIC: 
     Type: "AWS::EC2::Subnet"
     Properties: 
-      AvailabilityZone: "ap-northeast-1a"
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: !Ref AWS::Region
       CidrBlock: 10.10.10.0/24
       VpcId: !Ref RAISE 
       Tags: 
@@ -41,7 +25,9 @@ Resources:
   PUBLIC2: 
     Type: "AWS::EC2::Subnet"
     Properties: 
-      AvailabilityZone: "ap-northeast-1c"
+      AvailabilityZone: !Select
+        - 1
+        - Fn::GetAZs: !Ref AWS::Region
       CidrBlock: 10.10.11.0/24
       VpcId: !Ref RAISE
       Tags: 
@@ -51,7 +37,9 @@ Resources:
   PRIVATE: 
     Type: "AWS::EC2::Subnet"
     Properties: 
-      AvailabilityZone: "ap-northeast-1a"
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: !Ref AWS::Region
       CidrBlock: 10.10.20.0/24
       VpcId: !Ref RAISE
       Tags: 
@@ -61,16 +49,16 @@ Resources:
   PRIVATE2: 
     Type: "AWS::EC2::Subnet"
     Properties: 
-      AvailabilityZone: "ap-northeast-1c"
+      AvailabilityZone: !Select
+        - 1
+        - Fn::GetAZs: !Ref AWS::Region
       CidrBlock: 10.10.21.0/24
       VpcId: !Ref RAISE
       Tags: 
         - Key: Name
           Value: PRIVATE2
 
-#=================================
-# インターネットゲートウェイ作成
-#=================================
+
   IGW:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -78,9 +66,7 @@ Resources:
         - Key: Name
           Value: NETGW-RAISE
 
-#=================================
-# IGWをVPCにアタッチ
-#=================================
+
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -88,9 +74,6 @@ Resources:
       InternetGatewayId: !Ref IGW
 
 
-#=================================
-# IGW用ルートテーブル作成
-#=================================
   PubSubRT:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -99,9 +82,7 @@ Resources:
         - Key: Name
           Value: RUTE-TABLE-RAISE_PUBLIC
 
-#=================================
-# IGW用ルートテーブルに0.0.0.0/0をアタッチ
-#=================================
+
   PubSubToInternet:
     Type: AWS::EC2::Route
     Properties:
@@ -109,24 +90,17 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref IGW
 
-#=================================
-# IGW用ルートテーブルをサブネットにアタッチ
-#=================================
   AssoPubSubRT:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PUBLIC
       RouteTableId: !Ref PubSubRT
 
-#=================================
-# EC2作成
-#=================================
-
   EC2: 
     Type: AWS::EC2::Instance
     Properties: 
       ImageId: ami-00d101850e971728d
-      KeyName: !Ref KeyName
+      KeyName: "RAISE-KEY"
       InstanceType: t2.micro
       NetworkInterfaces: 
         - AssociatePublicIpAddress: "true"
@@ -137,30 +111,25 @@ Resources:
       Tags:
           - Key: Name
             Value: RAISE-EC
-#=================================
-# セキュリティグループ作成
-#=================================
 
   SECURITYGW:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupName: SECURITYGW
-      GroupDescription: Allow SSH and HTTP access only MyIP
+      GroupDescription: Allow SSH and HTTP to client host
       VpcId: !Ref RAISE
       SecurityGroupIngress:
         # http
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: !Ref MyIP
+          CidrIp: 0.0.0.0/0
         # ssh
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: !Ref MyIP
-#=================================
-# EIP関連付け
-#=================================
+          CidrIp: 0.0.0.0/0
+
   IPAssoc:
     Type: AWS::EC2::EIPAssociation
     Properties:

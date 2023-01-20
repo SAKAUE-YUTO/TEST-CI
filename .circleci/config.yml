@@ -1,26 +1,55 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
+
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+orbs:
+  aws-cli: circleci/aws-cli@3.1.4
+  ansible-playbook: orbss/ansible-playbook@0.0.5
+  python: circleci/python@2.0.3
+
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+  cfn-lint:
+    executor: python/default
     steps:
       - checkout
+      - run: pip install cfn-lint
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: run cfn-lint
+          command: |
+            cfn-lint -i W3002 -t cloudformation/*.yaml
+  executor-CF:
+    executor: aws-cli/default
+    steps:
+      - checkout
+      - aws-cli/setup:
+         aws-access-key-id: AWS_ACCESS_KEY_ID
+         aws-region: AWS_DEFAULT_REGION
+         aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+      - run:
+         name: deploy cloudformation
+         command: 
+          set -x
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+          aws cloudformation deploy --stack-name task13 --template-file cloudformation/NW.yaml
+
+  executor-Ansible:
+    executor: ansible-playbook/default
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "d9:97:25:47:37:f2:0f:67:36:0d:e3:fb:b5:71:17:42"
+      - ansible-playbook/install:
+          version: 2.9.27
+      - run: scp -o StrictHostKeyChecking=no
+      - ansible-playbook/playbook:
+          playbook: ansible/playbook.yml
+          playbook-options: "-u ec2-user -i ansible/inventory --private-key .ssh/RAISE-KEY.pem"
 workflows:
-  say-hello-workflow:
-    jobs:
-      - say-hello
+  RAISE-13:
+    jobs: 
+     - cfn-lint
+     - executor-CF
+     - executor-Ansible:
+         requires:
+           - "executor-CF"
+
