@@ -12,10 +12,11 @@
 ##
 ・構成図
 ##
-![TASK14](https://user-images.githubusercontent.com/105532255/215033992-da15384a-ea7a-467e-ac75-3da65f8c1f74.png)
+![TASK14](https://user-images.githubusercontent.com/105532255/215089137-f3c3e10c-540b-4a5a-9a76-dd6367cf4d78.png)
 
 ##
 
 ・フロー図
 ##
-![自動化マップ](https://user-images.githubusercontent.com/105532255/215034319-f7868035-bb0b-4a7c-aba4-c886aa38b9ae.png)
+
+![自動化マップ](https://user-images.githubusercontent.com/105532255/215089412-8944d4ff-463e-4fdb-bd6e-ff85c75381e5.png)
