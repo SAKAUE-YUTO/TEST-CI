@@ -16,6 +16,6 @@
 
 ##
 
-・フロー図
+・circleci フロー図
 ##
 ![自動化マップ](https://user-images.githubusercontent.com/105532255/215034319-f7868035-bb0b-4a7c-aba4-c886aa38b9ae.png)
